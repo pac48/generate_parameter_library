@@ -8,6 +8,8 @@ admittance_controller:
       - wrist_2_joint
       - wrist_3_joint
 
+    integer_param: 1
+
     fixed_string_no_default:
       "happy"
 
