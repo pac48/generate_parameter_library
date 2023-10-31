@@ -1,12 +1,13 @@
 {{comments}}
 
+from rcl_interfaces.msg import FloatingPointRange, IntegerRange
 from rcl_interfaces.msg import ParameterDescriptor
 from rcl_interfaces.msg import SetParametersResult
-from rcl_interfaces.msg import FloatingPointRange, IntegerRange
 from rclpy.clock import Clock
 from rclpy.exceptions import InvalidParameterValueException
 from rclpy.time import Time
 import copy
+import numbers
 import rclpy
 from generate_parameter_library_py.python_validators import ParameterValidators
 
@@ -23,7 +24,21 @@ class Params:
 stamp_ = Time()
 
 {{field_content-}}
-{{sub_struct_content-}}
+{{sub_struct_content}}
+def to_dict(self):
+    out = {}
+
+    def to_dict_internal(instance, base_name):
+        if isinstance(instance, (str, numbers.Number, list)):
+            out.update({base_name: instance})
+        else:
+            data = [attr for attr in dir(instance) if not callable(getattr(instance, attr)) and not attr.startswith("__") and attr is not "stamp_"]
+            for attr in data:
+                to_dict_internal(getattr(instance, attr), ("" if base_name == "" else base_name + ".") + attr)
+
+    to_dict_internal(self, "")
+
+    return out
 {% endfilter -%}
 {%- endfilter %}
 
